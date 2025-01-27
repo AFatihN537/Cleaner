@@ -17,27 +17,27 @@ void CleanTask() {
     auto  time_2        = std::chrono::seconds::duration(time - announce_time);
     if (config.Basic.ConsoleLog) {
         ll::io::LoggerRegistry::getInstance().getOrCreate("Cleaner")->info(
-            tr("cleaner.output.count1", {S(time_1.count())})
+            tr("Sistem akan membersihkan entity server secara otomatis dalam %1$s detik", {S(time_1.count())})
         );
     }
     if (config.Basic.SendBroadcast) {
-        Helper::broadcastMessage(tr("cleaner.output.count1", {S(time_1.count())}));
+        Helper::broadcastMessage(tr("Sistem akan membersihkan entity server secara otomatis dalam %1$s detik", {S(time_1.count())}));
     }
     if (config.Basic.SendToast) {
-        Helper::broadcastToast(tr("cleaner.output.count2", {S(announce_time)}));
+        Helper::broadcastToast(tr("Perhatian! Sistem akan membersihkan entity server secara otomatis dalam %1$s detik", {S(announce_time)}));
     }
     ll::coro::keepThis([announce_time, &config, time_2]() -> ll::coro::CoroTask<> {
         co_await time_2;
         if (config.Basic.ConsoleLog) {
             ll::io::LoggerRegistry::getInstance().getOrCreate("Cleaner")->info(
-                tr("cleaner.output.count2", {S(announce_time)})
+                tr("Perhatian! Sistem akan membersihkan entity server secara otomatis dalam %1$s detik", {S(announce_time)})
             );
         }
         if (config.Basic.SendBroadcast) {
-            Helper::broadcastMessage(tr("cleaner.output.count2", {S(announce_time)}));
+            Helper::broadcastMessage(tr("Perhatian! Sistem akan membersihkan entity server secara otomatis dalam %1$s detik", {S(announce_time)}));
         }
         if (config.Basic.SendToast) {
-            Helper::broadcastToast(tr("cleaner.output.count2", {S(announce_time)}));
+            Helper::broadcastToast(tr("Perhatian! Sistem akan membersihkan entity server secara otomatis dalam %1$s detik", {S(announce_time)}));
         }
         co_return;
     }).launch(ll::thread::ServerThreadExecutor::getDefault());
@@ -45,13 +45,13 @@ void CleanTask() {
         co_await time_1;
         auto count = ExecuteClean();
         if (config.Basic.ConsoleLog) {
-            ll::io::LoggerRegistry::getInstance().getOrCreate("Cleaner")->info(tr("cleaner.output.finish", {S(count)}));
+            ll::io::LoggerRegistry::getInstance().getOrCreate("Cleaner")->info(tr("Pembersihan selesai! %1$s entity telah dihilangkan", {S(count)}));
         }
         if (config.Basic.SendBroadcast) {
-            Helper::broadcastMessage(tr("cleaner.output.finish", {S(count)}));
+            Helper::broadcastMessage(tr("Pembersihan selesai! %1$s entity telah dihilangkan", {S(count)}));
         }
         if (config.Basic.SendToast) {
-            Helper::broadcastToast(tr("cleaner.output.finish", {S(count)}));
+            Helper::broadcastToast(tr("Pembersihan selesai! %1$s entity telah dihilangkan", {S(count)}));
         }
         auto_clean_triggerred = false;
         co_return;
@@ -83,13 +83,13 @@ void CleanTaskCount(int max_entities) {
                 if (count >= max_entities) {
                     auto_clean_triggerred = true;
                     if (config.Basic.ConsoleLog) {
-                        ll::io::LoggerRegistry::getInstance().getOrCreate("Cleaner")->warn(tr("cleaner.output.triggerAutoCleanCount", {S(count)}));
+                        ll::io::LoggerRegistry::getInstance().getOrCreate("Cleaner")->warn(tr("Entity di server saat ini terlalu banyak! Ada %1$s entity yang dapat dibersihkan. Cleaner akan dijalankan.", {S(count)}));
                     }
                     if (config.Basic.SendBroadcast) {
-                        Helper::broadcastMessage(tr("cleaner.output.triggerAutoCleanCount", {S(count)}));
+                        Helper::broadcastMessage(tr("Entity di server saat ini terlalu banyak! Ada %1$s entity yang dapat dibersihkan. Cleaner akan dijalankan.", {S(count)}));
                     }
                     if (config.Basic.SendToast) {
-                        Helper::broadcastToast(tr("cleaner.output.triggerAutoCleanCount", {S(count)}));
+                        Helper::broadcastToast(tr("Entity di server saat ini terlalu banyak! Ada %1$s entity yang dapat dibersihkan. Cleaner akan dijalankan.", {S(count)}));
                     }
                     CleanTask();
                 }
@@ -112,14 +112,14 @@ void CleanTaskTPS(float min_tps) {
                     auto mspt             = S(GMLIB_Level::getLevel()->getServerAverageTps());
                     if (config.Basic.ConsoleLog) {
                         ll::io::LoggerRegistry::getInstance().getOrCreate("Cleaner")->warn(
-                            tr("cleaner.output.triggerAutoCleanTps", {mspt})
+                            tr("TPS rendah terdeteksi! TPS server saat ini %1$s\nCleaner akan dijalankan.", {mspt})
                         );
                     }
                     if (config.Basic.SendBroadcast) {
-                        Helper::broadcastMessage(tr("cleaner.output.triggerAutoCleanTps", {mspt}));
+                        Helper::broadcastMessage(tr("TPS rendah terdeteksi! TPS server saat ini %1$s\nCleaner akan dijalankan.", {mspt}));
                     }
                     if (config.Basic.SendToast) {
-                        Helper::broadcastToast(tr("cleaner.output.triggerAutoCleanTps", {mspt}));
+                        Helper::broadcastToast(tr("TPS rendah terdeteksi! TPS server saat ini %1$s\nCleaner akan dijalankan.", {mspt}));
                     }
                     CleanTask();
                 }
