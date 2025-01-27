@@ -22,10 +22,10 @@ int getPlayerCount() {
 
 void sendVoteForm(Player* pl) {
     auto fm = ll::form::ModalForm(
-        tr("cleaner.vote.title"),
-        tr("cleaner.vote.subtitle", {pl->getRealName()}),
-        tr("cleaner.vote.ok"),
-        tr("cleaner.vote.no")
+        tr("Vote Cleaner"),
+        tr("%1$s mengusulkan vote untuk menjalankan Cleaner.\n\n Setuju untuk mulai membersihkan entity sekarang?", {pl->getRealName()}),
+        tr("Setuju"),
+        tr("Tidak")
     );
     ll::service::getLevel()->forEachPlayer([&](Player& pl) -> bool {
         fm.sendTo(pl, [](Player& player, ll::form::ModalFormResult result, ll::form::FormCancelReason reason) {
@@ -33,12 +33,12 @@ void sendVoteForm(Player* pl) {
                 switch (result.value()) {
                 case ll::form::ModalFormSelectedButton::Upper: {
                     voteList[player.getUuid()] = true;
-                    player.sendMessage(tr("cleaner.vote.accept"));
+                    player.sendMessage(tr("Kamu setuju untuk bersih-bersih entity"));
                     return;
                 }
                 case ll::form::ModalFormSelectedButton::Lower: {
                     voteList[player.getUuid()] = false;
-                    player.sendMessage(tr("cleaner.vote.deny"));
+                    player.sendMessage(tr("Kamu tidak setuju untuk bersih-bersih entity"));
                     return;
                 }
                 default:
@@ -62,18 +62,18 @@ void checkVote() {
     float result = ((float)voteCount) / ((float)playerCount);
     if (result >= percentage) {
         if (config.Basic.SendBroadcast) {
-            Helper::broadcastMessage(tr("cleaner.vote.succeed"));
+            Helper::broadcastMessage(tr("Vote selesai!"));
         }
         if (config.Basic.SendToast) {
-            Helper::broadcastToast(tr("cleaner.vote.succeed"));
+            Helper::broadcastToast(tr("Vote selesai!"));
         }
         Cleaner::CleanTask();
     } else {
         if (config.Basic.SendBroadcast) {
-            Helper::broadcastMessage(tr("cleaner.vote.failed"));
+            Helper::broadcastMessage(tr("Vote gagal!"));
         }
         if (config.Basic.SendToast) {
-            Helper::broadcastToast(tr("cleaner.vote.failed"));
+            Helper::broadcastToast(tr("Vote gagal!"));
         }
     }
     hasVote     = false;
@@ -87,10 +87,10 @@ void voteClean(Player* pl) {
     hasVote     = true;
     playerCount = getPlayerCount();
     if (config.Basic.SendBroadcast) {
-        Helper::broadcastMessage(tr("cleaner.vote.voteMessage", {pl->getRealName()}));
+        Helper::broadcastMessage(tr("%1$s mengusulkan vote untuk menjalankan Cleaner. Kalau kamu ingin ikut vote tapi form vote nya tidak muncul, silahkan ketik /voteclean untuk ikut vote.", {pl->getRealName()}));
     }
     if (config.Basic.SendToast) {
-        Helper::broadcastToast(tr("cleaner.vote.voteMessage", {pl->getRealName()}));
+        Helper::broadcastToast(tr("%1$s mengusulkan vote untuk menjalankan Cleaner. Kalau kamu ingin ikut vote tapi form vote nya tidak muncul, silahkan ketik /voteclean untuk ikut vote.", {pl->getRealName()}));
     }
     sendVoteForm(pl);
     ll::coro::keepThis([&config]() -> ll::coro::CoroTask<> {
@@ -107,10 +107,10 @@ void voteClean(Player* pl) {
 
 void confirmForm(Player* pl) {
     auto fm = ll::form::ModalForm(
-        tr("cleaner.vote.title"),
-        tr("cleaner.vote.confirmTubtitle"),
-        tr("cleaner.vote.confirmOk"),
-        tr("cleaner.vote.confirmNo")
+        tr("Vote Cleaner"),
+        tr("Apakah kamu ingin mengusulkan vote untuk menjalankan Cleaner?"),
+        tr("Okeh"),
+        tr("Nggak dulu")
     );
     fm.sendTo(*pl, [](Player& player, ll::form::ModalFormResult result, ll::form::FormCancelReason reason) {
         if (result.has_value()) {
@@ -119,7 +119,7 @@ void confirmForm(Player* pl) {
                 return voteClean(&player);
             }
             case ll::form::ModalFormSelectedButton::Lower: {
-                return player.sendMessage(tr("cleaner.vote.cancel"));
+                return player.sendMessage(tr("Vote dibatalkan!"));
             }
             default:
                 return;
@@ -133,14 +133,14 @@ void voteCommandExecute(Player* pl) {
         if (canVote) {
             confirmForm(pl);
         } else {
-            pl->sendMessage(tr("cleaner.vote.cooldown"));
+            pl->sendMessage(tr("Vote Cleaner sedang cooldown..."));
         }
     } else {
         if (voteList.count(pl->getUuid())) {
-            pl->sendMessage(tr("cleaner.vote.voted"));
+            pl->sendMessage(tr("Kamu sudah memilih!"));
         } else {
             voteList[pl->getUuid()] = true;
-            pl->sendMessage(tr("cleaner.vote.accept"));
+            pl->sendMessage(tr("Kamu setuju untuk bersih-bersih entity"));
         }
     }
 }
